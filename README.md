@@ -104,6 +104,7 @@ de qualquer produto em Portugal.
 ```sh
 npm test
 npm run build
+npm run audit
 ```
 
 Os testes de contrato verificam identidade, isolamento, grupos cheios, retorno
@@ -112,3 +113,9 @@ usa `scripts/browser_acceptance.py` com Playwright, sem pedidos reais a grupos,
 lojas ou trackers. Usa fixtures apenas em memória e não cria operações reais.
 
 O site brasileiro e a sua base de métricas continuam independentes.
+
+Referências de configuração: [Render Static Sites](https://render.com/docs/static-sites)
+e [especificação do Blueprint](https://render.com/docs/blueprint-spec).
+O estado de candidatura Amazon segue a comunicação recebida pelo administrador;
+a [revisão do programa](https://afiliados.amazon.es/help/node/topic/G8TW5AE9XL2VX9VM)
+é distinta da atribuição inicial da tag.
