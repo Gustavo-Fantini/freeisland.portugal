@@ -40,3 +40,10 @@ test('Products reject cross-operation, wrong-currency and foreign shortlinks', (
   assert.equal(productLink(product, manifest, config), product.short_url);
   for (const change of [{ operation_id: 'brazil' }, { currency: 'BRL' }, { short_url: 'https://br.example.test/r/item' }, { short_url: 'javascript:alert(1)' }, { short_url: config.base_url + '/other' }]) assert.equal(productLink({ ...product, ...change }, manifest, config), null);
 });
+
+test('Short code and merchant links stay on the operation domain', () => {
+  const row={short_url:'https://pt.example.test/abcd2345/amazon',currency:'EUR'};
+  assert.equal(productLink(row,manifest,config),row.short_url);
+  assert.equal(productLink({...row,short_url:'https://other.example/abcd2345/amazon'},manifest,config),null);
+  assert.equal(productLink({...row,short_url:'https://pt.example.test/abcd2345/amazon/extra'},manifest,config),null);
+});

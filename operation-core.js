@@ -58,7 +58,7 @@ export function productLink(product, manifest, config) {
   if (!product || (product.operation_id && product.operation_id !== config.operation_id) || product.currency !== 'EUR') return null;
   const url = httpsURL(product.short_url);
   if (!url) return null;
-  if (manifest.shortlinks_enabled && (url.origin !== config.base_url || !['/r/', '/go/'].some(prefix => url.pathname.startsWith(prefix)))) return null;
+  if (manifest.shortlinks_enabled && (url.origin !== config.base_url || !(['/r/', '/go/'].some(prefix => url.pathname.startsWith(prefix)) || /^\/[a-z2-7]{8,16}\/[a-z0-9][a-z0-9-]{1,29}\/?$/.test(url.pathname)))) return null;
   return url.href;
 }
 export function count(value) { return new Intl.NumberFormat('pt-PT').format(Number.isInteger(value) && value >= 0 ? value : 0); }

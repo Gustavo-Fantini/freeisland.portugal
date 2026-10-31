@@ -254,14 +254,16 @@ function wireChannels() {
 }
 async function redirectProduct() {
   const match = location.pathname.match(/^\/(?:r|go)\/([a-z0-9][a-z0-9-]{1,64})\/?$/);
-  if (!match) return false;
+  const pretty = location.pathname.match(/^\/([a-z2-7]{8,16})\/([a-z0-9][a-z0-9-]{1,29})\/?$/);
+  if (!match && !pretty) return false;
+  const slug = match ? match[1] : pretty[2] + '-' + pretty[1];
   const title = document.querySelector('[data-title]'), message = document.querySelector('[data-message]');
   if (title) title.textContent = 'A confirmar o link';
   try {
-    const result = await api('links/' + match[1]), url = httpsURL(result.url);
+    const result = await api('links/' + slug), url = httpsURL(result.url);
     if (!url || url.origin === config.base_url) throw new Error('invalid_redirect');
     // Amazon requires a voluntary action on the intermediate page.
-    if (result.network === 'amzn') {
+    if (result.network === 'amzn' && manifest.brand?.amazon_redirect_mode !== 'automatic') {
       if (title) title.textContent = 'Continuar na Amazon.es';
       if (message) message.textContent = 'Confirma o preço, os portes e a entrega na loja.';
       const proceed = document.createElement('a');
