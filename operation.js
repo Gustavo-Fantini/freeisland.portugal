@@ -260,8 +260,17 @@ async function redirectProduct() {
   try {
     const result = await api('links/' + match[1]), url = httpsURL(result.url);
     if (!url || url.origin === config.base_url) throw new Error('invalid_redirect');
-    // Resolution is server-side, scoped to this operation and its current affiliate account.
-    location.replace(url.href);
+    // Amazon requires a voluntary action on the intermediate page.
+    if (result.network === 'amzn') {
+      if (title) title.textContent = 'Continuar na Amazon.es';
+      if (message) message.textContent = 'Confirma o preço, os portes e a entrega na loja.';
+      const proceed = document.createElement('a');
+      proceed.className = 'button'; proceed.textContent = 'Continuar na Amazon.es';
+      proceed.href = url.href; proceed.rel = 'sponsored noopener';
+      proceed.referrerPolicy = 'strict-origin-when-cross-origin';
+      proceed.dataset.amazonContinue = '';
+      document.querySelector('.redirect-card').append(proceed);
+    } else location.replace(url.href);
   } catch {
     if (title) title.textContent = 'Este link não está disponível';
     if (message) message.textContent = 'O produto pode ter expirado ou deixado de estar disponível. Podes voltar à página inicial.';
