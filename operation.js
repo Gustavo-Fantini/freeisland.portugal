@@ -154,8 +154,11 @@ function openPreferences() {
 function applyBrand() {
   const brand = manifest.brand || {};
   if (brand.name) all('.brand-copy strong, .footer-brand strong').forEach(node => { node.textContent = brand.name; });
-  if (document.body.dataset.page === 'landing') {
-    if (brand.headline) document.querySelector('h1').textContent = brand.headline;
+  if (location.pathname === '/' || location.pathname === '/index.html') {
+    const headline = document.querySelector('h1');
+    // Preserve the existing line break and accent when the configured title
+    // contains the same words. Editorial pages keep their own page titles.
+    if (brand.headline && headline && brand.headline.trim().replace(/\s+/g, ' ') !== headline.innerText.trim().replace(/\s+/g, ' ')) headline.textContent = brand.headline;
     if (brand.description) document.querySelector('.hero-copy').textContent = brand.description;
   }
   const logo = httpsURL(brand.logo_url);

@@ -19,7 +19,7 @@ def setup(browser,width,configured=True,mismatch=False,gpc=False):
  state={'events':[],'api':[],'meta':[],'outbound':[],'first_members':990,'errors':[]}
  config={'operation_id':OP if configured else '', 'operation_slug':'free-island-portugal','country':'PT','api_url':API,'base_url':SITE}
  manifest={**config,'locale':'pt-PT','currency':'EUR','timezone':'Europe/Lisbon','short_prefix':'/r/','shortlinks_enabled':True,
-  'promotions_enabled':True,'brand':{'name':'Free Island Portugal','meta_pixel_id':'111111111111111'}}
+  'promotions_enabled':True,'brand':{'name':'Free Island Portugal','headline':'Boas ofertas. No teu telemóvel.','meta_pixel_id':'111111111111111'}}
  if mismatch:manifest['operation_id']='22222222-2222-4222-8222-222222222222'
  def intercept(route):
   request=route.request;url=urlsplit(request.url);p=url.path
@@ -62,6 +62,7 @@ def configured(browser,width):
  page.goto(SITE+'/?utm_source=fixture&utm_medium=test',wait_until='domcontentloaded')
  page.locator('#privacy-preferences[open]').wait_for();page.locator('.promotion-card').wait_for()
  check(f'{width}: Portugal locale',page.locator('html').get_attribute('lang')=='pt-PT')
+ check(f'{width}: configured title keeps original accent',page.locator('h1 span').inner_text()=='No teu telemóvel.')
  check(f'{width}: foreign products excluded',page.locator('.promotion-card').count()==1 and 'WRONG' not in page.locator('body').inner_text())
  check(f'{width}: no storefront',page.locator('.amazon-store-card, a[href*="amazon.com.br"], a[href*="/shop/"]').count()==0)
  check(f'{width}: no Pixel before consent',not state['meta'])
@@ -83,6 +84,7 @@ def configured(browser,width):
   page.goto(SITE+path,wait_until='domcontentloaded');page.locator('h1').first.wait_for();page.wait_for_timeout(60)
   check(f'{width}: {path} readable',bool(page.locator('h1').first.inner_text()) and page.locator('.brand-copy').count()==1)
   check(f'{width}: {path} fits',page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'))
+  if path=='/ofertas.html':check(f'{width}: selections keep editorial title',page.locator('h1').inner_text()=='Os últimos achados, num só lugar.')
  page.goto(SITE+'/contato.html',wait_until='domcontentloaded');page.wait_for_function("document.querySelector('[data-telegram-link]').hasAttribute('href')")
  page.wait_for_timeout(100)
  with page.expect_popup() as popup:
