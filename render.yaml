@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: freeisland-portugal
+    runtime: static
+    buildCommand: node build.mjs
+    staticPublishPath: dist
+    autoDeployTrigger: commit
+    routes:
+      - type: rewrite
+        source: /r/*
+        destination: /r/index.html
+      - type: rewrite
+        source: /go/*
+        destination: /r/index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /config.json
+        name: Cache-Control
+        value: no-store
+      - path: /.well-known/freeisland.json
+        name: Cache-Control
+        value: no-store
