@@ -18,10 +18,11 @@ O domínio previsto é `https://freeisland-portugal.onrender.com`.
 Se o Render atribuir outro domínio, definir `FI_BASE_URL` com a origem HTTPS
 real antes do build. O build atualiza canonical, Open Graph, sitemap e manifest.
 
-É possível publicar antes de criar a operação. Nesse estado, os guias e todas
-as páginas editoriais funcionam; os convites e as publicações mostram que a
-comunidade está em preparação. Não são consultadas operações de outro país,
-não são inventados produtos ou membros e não são recolhidas métricas.
+É possível publicar antes de criar a operação. Nesse estado, os guias, as páginas
+editoriais e o convite explícito https://t.me/freeislandportugal funcionam.
+As publicações aguardam configuração. Não são consultadas operações de outro
+país, não são inventados produtos ou membros e não são recolhidas métricas.
+Os botões de WhatsApp foram removidos nesta fase por escolha do administrador.
 
 ## Ligar à operação portuguesa
 
@@ -66,14 +67,13 @@ projeto da automação; não é necessário reaplicá-la nem copiar o SQL brasil
 no Render deste site, no JavaScript ou neste repositório.** As cinco variáveis
 acima são públicas e não incluem credenciais.
 
-Os convites vêm dos destinos explicitamente vinculados à operação. A menor
-prioridade numérica é consultada primeiro. Se o grupo 1 ficar com vaga, volta
-a recebê-la. A página consulta ao carregar e antes de abrir o convite, renova
-os dados enquanto está visível e ao regressar ao separador. Uma contagem
-desconhecida ou desatualizada num grupo anterior não autoriza saltar para um
-posterior. A soma apresentada corresponde a participantes nos grupos de
-WhatsApp e não a pessoas únicas entre plataformas. Contagens desatualizadas
-não são mostradas. Telegram e WhatsApp têm o mesmo destaque visual.
+O convite público fornecido pelo administrador é `https://t.me/freeislandportugal`.
+Continua disponível durante a configuração ou uma falha temporária da API.
+Com a operação ligada, o destino Telegram validado pode vir da configuração
+dessa operação. A contagem só aparece quando a API devolve um número de membros
+verificado para o destino correspondente. Os helpers de prioridade WhatsApp
+continuam cobertos pelos testes para uma futura reativação; a página atual
+não mostra botões ou contagens de WhatsApp.
 
 O feed mostra apenas publicações devolvidas para esta operação e moeda EUR.
 Não reproduz preços ou stock da Amazon. Os links comerciais são identificados;
@@ -92,12 +92,14 @@ medem saída para o convite, não adesão confirmada.
 ## Amazon.es
 
 A tag fornecida pelo administrador é `freeislandpor-21`. Foi cadastrada na
-Central de Contas como **Amazon.es Portugal - candidatura em avaliacao**, sem
-vínculo automático a operações. A comunicação recebida prevê revisão após as
-três vendas; a aprovação final não foi marcada como confirmada. Quando essa
-aprovação ocorrer, atualizar e testar a conta no Hunter antes de ativar o
-programa. A tag não dá origem a uma loja pública Amazon nem comprova entrega
-de qualquer produto em Portugal.
+Central de Contas como **Amazon.es Portugal - fase inicial**, sem vínculo
+automático a operações. A comunicação recebida libera a participação inicial
+e prevê revisão após as três vendas. O Hunter distingue acesso inicial
+declarado da revisão final aprovada; o teste não afirma aprovação por API.
+A tag não dá origem a uma loja pública Amazon nem comprova entrega de qualquer
+produto em Portugal. O [guia completo da operação](https://github.com/Gustavo-Fantini/scraper/blob/main/docs/portugal-operation-setup.md)
+descreve todos os campos de identidade, afiliados, bot, leitor, fonte, destino,
+landing e validação.
 
 ## Desenvolvimento e validação
 

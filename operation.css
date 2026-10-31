@@ -3,6 +3,7 @@
 .channel-actions a[aria-disabled="true"] { opacity: .65; cursor: wait; }
 .channel-actions a:focus-visible { outline: 3px solid #188245; outline-offset: 4px; }
 .channel-status { line-height: 1.6; }
+.channel-actions { grid-template-columns: minmax(0, 1fr) !important; max-width: 640px; margin-inline: auto; }
 .privacy-dialog { width: min(540px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: 26px; border: 1px solid #dce6d8; border-radius: 20px; color: #183328; background: #fbfcf8; font: 400 15px/1.6 Outfit, system-ui, sans-serif; box-shadow: 0 24px 80px #0b2b2333; }
 .privacy-dialog::backdrop { background: #10251c66; }
 .privacy-dialog h2 { margin: 0 0 10px; font-size: 24px; line-height: 1.2; letter-spacing: -.03em; }

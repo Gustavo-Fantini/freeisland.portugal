@@ -1,4 +1,4 @@
-import { validateConfig, validateManifest, routingTargets, memberTotal, productLink, httpsURL, count, relativeTime } from './operation-core.js';
+import { validateConfig, validateManifest, routingTargets, productLink, httpsURL, count, relativeTime } from './operation-core.js';
 
 const all = selector => [...document.querySelectorAll(selector)];
 const create = (tag, className, text) => {
@@ -9,12 +9,13 @@ const create = (tag, className, text) => {
 };
 const PRIVACY_KEY = 'fi:portugal:privacy:v1';
 const SESSION_KEY = 'fi:portugal:session:v1';
+const TELEGRAM_GROUP = 'https://t.me/freeislandportugal';
 let config, manifest, pageNonce, sessionId = '', routeFlight, refreshTimer;
 let preferences = { analytics: false, advertising: false };
 let metaLoaded = false, metaPageTracked = false;
 
 function setStatus(message) {
-  all('[data-whatsapp-status]').forEach(node => { node.textContent = message; node.hidden = !message; });
+  all('[data-channel-status]').forEach(node => { node.textContent = message; node.hidden = !message; });
 }
 function setChannel(channel, url) {
   all(`[data-${channel}-link]`).forEach(node => {
@@ -26,10 +27,11 @@ function setChannel(channel, url) {
   });
 }
 function renderMembers(snapshot) {
-  const total = memberTotal(snapshot);
+  const channel = snapshot?.telegram_channels?.find(item => item.url === (routingTargets(snapshot).telegram || TELEGRAM_GROUP));
+  const total = Number.isInteger(channel?.members) && channel.members >= 0 ? channel.members : null;
   all('[data-activity-members]').forEach(node => {
     node.hidden = total === null;
-    node.textContent = total === null ? '' : `${count(total)} participantes nos grupos de WhatsApp`;
+    node.textContent = total === null ? '' : `${count(total)} participantes no Telegram`;
   });
 }
 async function api(path, options = {}) {
@@ -39,8 +41,8 @@ async function api(path, options = {}) {
   if (!response.ok) throw new Error('public_api_unavailable');
   return response.json();
 }
-function unavailable(message = 'Não foi possível confirmar os grupos agora. Tenta novamente dentro de instantes.') {
-  setChannel('whatsapp', null); setChannel('telegram', null); renderMembers(null); setStatus(message);
+function unavailable(message = '') {
+  setChannel('whatsapp', null); setChannel('telegram', TELEGRAM_GROUP); renderMembers(null); setStatus(message);
 }
 async function refreshRoutes(fresh = true) {
   // A click never reuses an earlier cached read in place of a live check.
@@ -52,11 +54,8 @@ async function refreshRoutes(fresh = true) {
   const promise = (async () => {
     const snapshot = await api(`routing${fresh ? '?fresh=true' : ''}`);
     const targets = routingTargets(snapshot);
-    setChannel('whatsapp', targets.whatsapp); setChannel('telegram', targets.telegram); renderMembers(snapshot);
-    setStatus(targets.whatsapp ? '' : targets.telegram
-      ? 'Ainda não foi possível confirmar uma vaga no WhatsApp. Podes acompanhar pelo Telegram.'
-      : 'Os convites da comunidade ainda não estão disponíveis. Os guias continuam acessíveis.');
-    return targets;
+    setChannel('telegram', targets.telegram || TELEGRAM_GROUP); renderMembers(snapshot); setStatus('');
+    return { whatsapp: null, telegram: targets.telegram || TELEGRAM_GROUP };
   })();
   const flight = { promise, fresh }; routeFlight = flight;
   try { return await promise; }
@@ -232,6 +231,9 @@ function wireChannels() {
   for (const channel of ['whatsapp', 'telegram']) all(`[data-${channel}-link]`).forEach(link => {
     let opening = false;
     link.addEventListener('click', async event => {
+      // The administrator supplied this public Portugal invite explicitly.
+      // Joining Telegram remains available before operation setup or during an API outage.
+      if (channel === 'telegram') { if (manifest) track('telegram_click'); return; }
       event.preventDefault();
       if (!manifest || opening) return;
       opening = true; link.setAttribute('aria-busy', 'true');
@@ -240,6 +242,7 @@ function wireChannels() {
         if (url) { track(channel === 'whatsapp' ? 'whatsapp_click' : 'telegram_click'); location.assign(url); }
       } catch {} finally { opening = false; link.removeAttribute('aria-busy'); }
     });
+    if (channel === 'telegram') return;
     link.addEventListener('keydown', event => { if (event.key === 'Enter' && !link.hasAttribute('href')) { event.preventDefault(); link.click(); } });
     // New tabs and context menus must not reuse an invite that has become full.
     link.addEventListener('auxclick', event => { if (event.button === 1) { event.preventDefault(); link.click(); } });
@@ -264,7 +267,7 @@ async function redirectProduct() {
 }
 async function main() {
   all('[data-current-year]').forEach(node => { node.textContent = new Intl.DateTimeFormat('pt-PT', { year: 'numeric', timeZone: 'Europe/Lisbon' }).format(new Date()); });
-  setChannel('whatsapp', null); setChannel('telegram', null); wireChannels();
+  setChannel('whatsapp', null); setChannel('telegram', TELEGRAM_GROUP); wireChannels();
   all('[data-consent-settings]').forEach(button => button.addEventListener('click', openPreferences));
   readPreferences();
   try {
@@ -273,7 +276,7 @@ async function main() {
     config = validateConfig(await response.json());
     if (location.origin !== config.base_url) throw new Error('landing_origin_mismatch');
     if (!config.configured) {
-      unavailable('A comunidade portuguesa está a preparar as primeiras publicações. Entretanto, explora os nossos guias.');
+      unavailable();
       showNoActivity('Ainda não há publicações disponíveis da comunidade portuguesa. Os guias de compra já estão disponíveis.');
       return;
     }

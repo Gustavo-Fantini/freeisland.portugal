@@ -40,7 +40,7 @@ def setup(browser,width,configured=True,mismatch=False,gpc=False):
     groups=[{'priority':1,'status':'ok','members':state['first_members'],'capacity_limit':990,'invite_url':'https://chat.whatsapp.com/'+'A'*20},
       {'priority':2,'status':'ok','members':150,'capacity_limit':990,'invite_url':'https://chat.whatsapp.com/'+'B'*20}]
     data={'whatsapp_groups':groups,'whatsapp_url':groups[0 if state['first_members']<990 else 1]['invite_url'],
-     'telegram_url':'https://t.me/portugal_fixture','status':'ok'}
+     'telegram_url':'https://t.me/freeislandportugal','telegram_channels':[{'url':'https://t.me/freeislandportugal','members':83}],'status':'ok'}
    elif p.endswith('/activity'):
     product={'operation_id':OP,'product_title':'Produto de teste português','store':'Loja de teste','currency':'EUR','short_url':SITE+'/r/produto-1','image_public_url':SITE+'/assets/logo_sem_fundo.png','published_at':'2026-10-31T00:10:00Z'}
     data={'today_count':1,'promotions':[product,{**product,'operation_id':'brazil','product_title':'WRONG OPERATION'},{**product,'currency':'BRL','product_title':'WRONG CURRENCY'},{**product,'short_url':'https://br.test/r/foreign','product_title':'WRONG DOMAIN'}]}
@@ -71,10 +71,10 @@ def configured(browser,width):
  check(f'{width}: opt-in details independent',any(e['consent'] and not e['aggregate'] for e in state['events']))
  check(f'{width}: same nonce',len({e['page_nonce'] for e in state['events']})==1)
  check(f'{width}: no anonymous campaign',all(not e['source'] and e['session_id'] is None for e in state['events'] if not e['consent']))
- check(f'{width}: correct WA sum',page.locator('[data-activity-members]').inner_text()=='1\u00a0140 participantes nos grupos de WhatsApp' or '140 participantes' in page.locator('[data-activity-members]').inner_text())
- wa=page.locator('[data-whatsapp-link]').first;tg=page.locator('[data-telegram-link]').first
- check(f'{width}: group 2 while 1 full',wa.get_attribute('href').endswith('B'*20))
- check(f'{width}: equal CTA height',abs(wa.bounding_box()['height']-tg.bounding_box()['height'])<1)
+ check(f'{width}: only verified Telegram members',page.locator('[data-activity-members]').inner_text()=='83 participantes no Telegram')
+ tg=page.locator('[data-telegram-link]').first
+ check(f'{width}: WhatsApp buttons absent',page.locator('[data-whatsapp-link],a[href*="chat.whatsapp.com"]').count()==0)
+ check(f'{width}: Portugal Telegram invite',tg.get_attribute('href')=='https://t.me/freeislandportugal')
  check(f'{width}: no overflow',page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'))
  if width in (390,1366):page.screenshot(path=str(OUT/f'portugal-{width}.png'),full_page=True)
  page.get_by_role('button',name='Cookies',exact=True).click();page.get_by_label('Permitir medição publicitária da Meta',exact=True).check();page.get_by_role('button',name='Guardar preferências').click();page.wait_for_timeout(100)
@@ -83,13 +83,13 @@ def configured(browser,width):
   page.goto(SITE+path,wait_until='domcontentloaded');page.locator('h1').first.wait_for();page.wait_for_timeout(60)
   check(f'{width}: {path} readable',bool(page.locator('h1').first.inner_text()) and page.locator('.brand-copy').count()==1)
   check(f'{width}: {path} fits',page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'))
- # On the contact page, the dynamically bound CTA also returns to group 1.
- page.goto(SITE+'/contato.html',wait_until='domcontentloaded');page.wait_for_function("document.querySelector('[data-whatsapp-link]').hasAttribute('href')")
- state['first_members']=989
- page.locator('[data-whatsapp-link]').first.click();page.wait_for_url('https://chat.whatsapp.com/**')
- check(f'{width}: fresh check returns group 1',state['outbound'][-1].endswith('A'*20))
- check(f'{width}: click uses live check',any('/routing?fresh=true' in url for url in state['api']))
- check(f'{width}: successful redirect tracked',any(e['event']=='whatsapp_click' for e in state['events']))
+ page.goto(SITE+'/contato.html',wait_until='domcontentloaded');page.wait_for_function("document.querySelector('[data-telegram-link]').hasAttribute('href')")
+ page.wait_for_timeout(100)
+ with page.expect_popup() as popup:
+  page.locator('[data-telegram-link]').first.click()
+ popup.value.wait_for_load_state('domcontentloaded')
+ check(f'{width}: Telegram opens correct group',popup.value.url=='https://t.me/freeislandportugal')
+ check(f'{width}: successful redirect tracked',any(e['event']=='telegram_click' for e in state['events']))
  check(f'{width}: no script errors',not state['errors'])
  ctx.close()
 
@@ -99,6 +99,8 @@ def edge_cases(browser):
   page.goto(SITE+path,wait_until='domcontentloaded');page.wait_for_timeout(70)
   check('unconfigured '+path+' remains readable',page.locator('h1').count()==1)
   check('unconfigured '+path+' no API calls',not state['api'])
+  check('unconfigured '+path+' no WhatsApp',page.locator('[data-whatsapp-link]').count()==0)
+  if path in ['/','/contato.html']:check('unconfigured '+path+' Telegram works',page.locator('[data-telegram-link]').first.get_attribute('href')=='https://t.me/freeislandportugal')
  check('unconfigured no tracker',not state['meta'])
  guides=list((ROOT/'guias').glob('*.html'));check('ten original guides retained',len(guides)==10)
  for guide in guides:
