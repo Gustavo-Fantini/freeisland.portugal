@@ -18,3 +18,5 @@
 .redirect-card { width: min(580px, calc(100% - 32px)); margin: 10vh auto; padding: 28px; border: 1px solid #dce6d8; border-radius: 20px; background: #fbfcf8; color: #183328; text-align: center; font-family: Outfit, system-ui, sans-serif; }
 .redirect-card img { width: 80px; height: 80px; object-fit: contain; margin: 0 auto 20px; }
 .redirect-card a { display: inline-block; margin-top: 20px; text-decoration: underline; }
+body:not([data-page="landing"]) .redirect-card { box-sizing: border-box; width: min(460px, calc(100% - 32px)); }
+.redirect-card * { box-sizing: border-box; max-width: 100%; }
