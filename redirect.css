@@ -9,7 +9,8 @@ body { min-height: 100vh; min-height: 100svh; margin: 0; padding: 24px 16px; dis
 .redirect-eyebrow { width: fit-content; margin: 0 0 14px; padding: 7px 10px; border-radius: 7px; background: #eef5e8; color: #37613b; font-size: 10px; font-weight: 750; letter-spacing: .12em; }
 h1 { margin: 0; font-size: clamp(29px, 7.5vw, 37px); line-height: 1.08; font-weight: 700; letter-spacing: -.045em; }
 .redirect-message { margin: 15px 0 22px; max-width: 38ch; color: #66725f; font-size: 14px; line-height: 1.6; }
-.redirect-product { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin: 0 0 20px; padding: 13px 15px; border: 1px solid #e4ebdf; border-radius: 12px; background: #f7f9f4; color: #304b35; font-size: 14px; font-weight: 600; line-height: 1.45; }
+.redirect-product { margin: 0 0 20px; padding: 13px 15px; border: 1px solid #e4ebdf; border-radius: 12px; background: #f7f9f4; color: #304b35; font-size: 14px; font-weight: 600; line-height: 1.45; }
+.redirect-product span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 [hidden] { display: none !important; }
 .redirect-actions { min-height: 58px; }
 .redirect-primary { display: flex; width: 100%; min-height: 58px; align-items: center; justify-content: center; gap: 12px; padding: 16px 20px; border: 1px solid #ef9600; border-radius: 12px; background: #ffac25; color: #183326; font: 750 16px/1.35 Outfit, "Segoe UI", system-ui, sans-serif; text-decoration: none; cursor: pointer; box-shadow: 0 5px 0 #e7eadf; transition: background .15s, transform .15s; }
@@ -21,5 +22,5 @@ h1 { margin: 0; font-size: clamp(29px, 7.5vw, 37px); line-height: 1.08; font-wei
 .redirect-disclosure { margin: 20px 0 0; color: #65735f; font-size: 11px; line-height: 1.55; }
 .redirect-home { display: inline-block; margin-top: 22px; color: #52694d; font-size: 12px; line-height: 1.5; text-underline-offset: 3px; }
 @media (max-width: 480px) { body { padding: 18px 14px; } .redirect-card { padding: 25px 22px; border-radius: 22px; } .redirect-brand { margin-bottom: 24px; } .redirect-primary { font-size: 15px; } }
-@media (max-height: 680px) { body { align-items: start; } .redirect-brand { margin-bottom: 18px; } .redirect-product { -webkit-line-clamp: 2; } }
+@media (max-height: 680px) { body { align-items: start; } .redirect-brand { margin-bottom: 18px; } .redirect-product span { -webkit-line-clamp: 2; } }
 @media (prefers-reduced-motion: reduce) { .redirect-primary { transition: none; } }

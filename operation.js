@@ -268,7 +268,7 @@ async function redirectProduct() {
       if (title) title.textContent = 'A tua oferta está na Amazon.es.';
       if (message) message.textContent = 'Confirma o preço, os portes e a entrega diretamente na loja.';
       const product = document.querySelector('[data-product-title]');
-      if (product && typeof result.title === 'string' && result.title.trim()) { product.textContent = result.title; product.title = result.title; product.hidden = false; }
+      if (product && typeof result.title === 'string' && result.title.trim()) { const name = document.createElement('span'); name.textContent = result.title; product.replaceChildren(name); product.title = result.title; product.hidden = false; }
       const proceed = document.createElement('a');
       proceed.className = 'redirect-primary'; proceed.textContent = 'Ver oferta na Amazon.es';
       const arrow = document.createElement('span'); arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true'); proceed.append(arrow);
