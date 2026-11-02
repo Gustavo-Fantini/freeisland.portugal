@@ -38,7 +38,7 @@ async function api(path, options = {}) {
   const response = await fetch(`${config.api_url}/api/public/operations/${encodeURIComponent(config.operation_slug)}/${path}`, {
     cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(12000), ...options
   });
-  if (!response.ok) throw new Error('public_api_unavailable');
+  if (!response.ok) { const error = new Error('public_api_unavailable'); error.status = response.status; throw error; }
   return response.json();
 }
 function unavailable(message = '') {
@@ -273,9 +273,15 @@ async function redirectProduct() {
       proceed.dataset.amazonContinue = '';
       document.querySelector('.redirect-card').append(proceed);
     } else location.replace(url.href);
-  } catch {
-    if (title) title.textContent = 'Este link não está disponível';
-    if (message) message.textContent = 'O produto pode ter expirado ou deixado de estar disponível. Podes voltar à página inicial.';
+  } catch (error) {
+    const temporary = error.status !== 404;
+    if (title) title.textContent = temporary ? 'Não foi possível abrir agora' : 'Este link não está disponível';
+    if (message) message.textContent = temporary ? 'A ligação à loja está temporariamente indisponível. Tenta novamente dentro de instantes.' : 'O link foi removido ou deixou de estar disponível. Podes voltar à página inicial.';
+    if (temporary) {
+      const retry = document.createElement('button'); retry.type = 'button'; retry.className = 'button';
+      retry.textContent = 'Tentar novamente'; retry.addEventListener('click', () => location.reload());
+      document.querySelector('.redirect-card').append(retry);
+    }
   }
   return true;
 }
