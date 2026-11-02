@@ -258,29 +258,34 @@ async function redirectProduct() {
   if (!match && !pretty) return false;
   const slug = match ? match[1] : pretty[2] + '-' + pretty[1];
   const title = document.querySelector('[data-title]'), message = document.querySelector('[data-message]');
-  if (title) title.textContent = 'A confirmar o link';
+  const actions = document.querySelector('[data-redirect-actions]') || document.querySelector('.redirect-card');
+  if (title) title.textContent = 'A preparar a tua oferta.';
   try {
     const result = await api('links/' + slug), url = httpsURL(result.url);
     if (!url || url.origin === config.base_url) throw new Error('invalid_redirect');
     // Amazon requires a voluntary action on the intermediate page.
     if (result.network === 'amzn' && manifest.brand?.amazon_redirect_mode !== 'automatic') {
-      if (title) title.textContent = 'Continuar na Amazon.es';
-      if (message) message.textContent = 'Confirma o preço, os portes e a entrega na loja.';
+      if (title) title.textContent = 'A tua oferta está na Amazon.es.';
+      if (message) message.textContent = 'Confirma o preço, os portes e a entrega diretamente na loja.';
+      const product = document.querySelector('[data-product-title]');
+      if (product && typeof result.title === 'string' && result.title.trim()) { product.textContent = result.title; product.title = result.title; product.hidden = false; }
       const proceed = document.createElement('a');
-      proceed.className = 'button'; proceed.textContent = 'Continuar na Amazon.es';
+      proceed.className = 'redirect-primary'; proceed.textContent = 'Ver oferta na Amazon.es';
+      const arrow = document.createElement('span'); arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true'); proceed.append(arrow);
       proceed.href = url.href; proceed.rel = 'sponsored noopener';
       proceed.referrerPolicy = 'strict-origin-when-cross-origin';
       proceed.dataset.amazonContinue = '';
-      document.querySelector('.redirect-card').append(proceed);
+      actions.replaceChildren(proceed);
     } else location.replace(url.href);
   } catch (error) {
     const temporary = error.status !== 404;
     if (title) title.textContent = temporary ? 'Não foi possível abrir agora' : 'Este link não está disponível';
     if (message) message.textContent = temporary ? 'A ligação à loja está temporariamente indisponível. Tenta novamente dentro de instantes.' : 'O link foi removido ou deixou de estar disponível. Podes voltar à página inicial.';
+    actions.replaceChildren();
     if (temporary) {
-      const retry = document.createElement('button'); retry.type = 'button'; retry.className = 'button';
+      const retry = document.createElement('button'); retry.type = 'button'; retry.className = 'redirect-primary';
       retry.textContent = 'Tentar novamente'; retry.addEventListener('click', () => location.reload());
-      document.querySelector('.redirect-card').append(retry);
+      actions.append(retry);
     }
   }
   return true;
